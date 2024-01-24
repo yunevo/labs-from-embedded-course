@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mini Project - Nhom 2</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+    <style>
+        body{
+            background-image: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1)), url(https://media.istockphoto.com/id/1197384712/vi/vec-to/n%E1%BB%81n-vector-m%C3%A0u-x%C3%A1m-tr%E1%BB%ABu-t%C6%B0%E1%BB%A3ng.jpg?s=612x612&w=0&k=20&c=Fd0Dd2h9Q-mEIR_mMxLedcF7q3iIJkxUaFdIOx6GiCM%3D&fbclid=IwAR2bcdlw9wAYBDQ6f3oREHUNP2RE7e0GXXHVOtvxCATIy2tv5w8ID5oziOQ);
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: 100% 100%;
+        }
+    </style>
+    <style>
+        .left_data{
+            margin-top: 0.5em;
+            width: 49%;
+            float: left;
+        }
+        .right_data{
+            margin-top: 0.5em;
+            width: 49%;
+            float: left;
+        }
+        .left_chart{
+            width: 49%;
+            //height: 600px;
+            //background: #ddd;
+            float: left;
+        }
+        .right_chart{
+            width: 49%;
+            //height: 600px;
+            //background: #ddd;
+            float: right;
+        }
+    </style>
+</head>
+<body>
+    <h1><font color=#006600><center>REAL TIME SENSOR DISPLAY</center></font></h1>
+    <h2 class="left_data"><font id="temp" color=#2D80E3></font></h2>
+    <h2 class="right_data"><font id="hum" color=#2D80E3></font></h2>
+    <div class="left_chart"><canvas id="TemChart"></canvas></div>
+    <div class="right_chart"><canvas id="HumChart"></canvas></div>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function() {
+            var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+            // listen for mqtt_message events
+            // when a new message is received, log and append the data to the page
+            socket.on('mqtt_message', function(data) {
+              //console.log(data);
+              $('#temp').html('<center>' + 'Temperature: ' + data['temp'][data['temp'].length - 1] + '℃' + '</center>');
+              $('#hum').html('<center>' + 'Humidity: ' + data['hum'][data['hum'].length - 1] + '%' + '</center>');
+
+              var xValues = data['time'];
+              var temp_color = '#000000'
+              var hum_color = '#000000'
+
+              new Chart("TemChart", {
+                  type: "line",
+                  data: {
+                    labels: xValues,
+                    datasets: [{
+                      data: data['temp'],
+                      borderColor: '#C95D15',
+                      fill: false
+                    }]
+                  },
+                  options: {
+                    legend: {display: false},
+                    scales: {
+                        xAxes: [{
+                            display: true,
+                            gridLines: {
+                                display: false,
+                                color: temp_color
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Seconds',
+                                fontColor: temp_color
+                            },
+                            ticks: {
+                                    beginAtZero: false,
+                                    fontColor: temp_color
+                            }
+                        }],
+                        yAxes: [{
+                            display: true,
+                            gridLines: {
+                                display: true,
+                                color: temp_color
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Temperature',
+                                fontColor: temp_color
+                            },
+                            ticks: {
+                                    //beginAtZero: true,
+                                    fontColor: temp_color
+                            }
+                        }]
+                    }
+
+                  }
+                });
+
+                new Chart("HumChart", {
+                  type: "line",
+                  data: {
+                    labels: xValues,
+                    datasets: [{
+                      data: data['hum'],
+                      borderColor: '#C92B2E',
+                      fill: false
+                    }]
+                  },
+                  options: {
+                    legend: {display: false},
+                    scales: {
+                        xAxes: [{
+                            display: true,
+                            gridLines: {
+                                display: false,
+                                color: hum_color
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Seconds',
+                                fontColor: hum_color
+                            },
+                            ticks: {
+                                    beginAtZero: false,
+                                    fontColor: hum_color
+                            }
+                        }],
+                        yAxes: [{
+                            display: true,
+                            gridLines: {
+                                display: true,
+                                color: hum_color
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Humidity',
+                                fontColor: hum_color
+                            },
+                            ticks: {
+                                    //beginAtZero: true,
+                                    fontColor: hum_color
+                            }
+                        }]
+                    }
+                  }
+                });
+              })
+        });
+    </script>
+</body>
+</html>
